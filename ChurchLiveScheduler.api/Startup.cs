@@ -4,6 +4,7 @@ using ChurchLiveScheduler.api.Services;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 [assembly: FunctionsStartup(typeof(ChurchLiveScheduler.api.Startup))]
 
@@ -16,9 +17,11 @@ public class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {
+        var connectionString = Environment.GetEnvironmentVariable("DefaultConnection", EnvironmentVariableTarget.Process);
+
         builder.Services.AddDbContext<SchedulerDbContext>(options =>
         {
-            options.UseSqlite("Data Source=schedule.db");
+            options.UseSqlite(connectionString);
         });
 
         builder.Services.AddScoped<ISchedulerService, SchedulerService>();
