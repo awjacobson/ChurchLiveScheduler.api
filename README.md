@@ -26,3 +26,27 @@ On Azure, portal.azure.com > your Azure Function > Settings > Environment variab
 
 Name              Value
 DefaultConnection  Data Source=d:\home\site\wwwroot\schedule.db
+
+On Azure, also enable CORS. API > CORS > Allowed Origins: *
+
+Example usage (JavaScript)
+
+```javascript
+function requestNextService(onsuccess, onerror) {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        const data = JSON.parse(xhr.responseText);
+        onsuccess(data.name, new Date(data.start));};
+    xhr.onerror = () => {
+        onerror(xhr.statusText);
+    };
+    xhr.open("GET", "https://churchliveschedulerapi.azurewebsites.net/api/GetNext", true);
+    xhr.send();
+}
+
+requestNextService(initCountdown, console.error);
+
+function initCountdown(title, date) {
+    ...
+}
+```
