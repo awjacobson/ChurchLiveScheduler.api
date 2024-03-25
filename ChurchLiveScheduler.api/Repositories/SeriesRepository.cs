@@ -33,18 +33,6 @@ public sealed class SeriesRepository : ISeriesRepository
         return scheduledEvents.OrderBy(x => x.Start).FirstOrDefault();
     }
 
-    public ScheduledEvent GetNextInSpecials(DateTime date)
-    {
-        var dateText = date.ToString("yyyy-MM-ddTHH:mm:00.000");
-
-        var scheduledEvents = _dbContext.Specials
-            .Where(x => String.Compare(x.Datetime, dateText) > 0)
-            .Select(x => new ScheduledEvent { Name = x.Name, Start = DateTime.Parse(x.Datetime) })
-            .ToList();
-
-        return scheduledEvents.OrderBy(x => x.Start).FirstOrDefault();
-    }
-
     /// <summary>
     /// Get the date and time of the next occurance of the given series.
     /// </summary>
@@ -79,7 +67,7 @@ public sealed class SeriesRepository : ISeriesRepository
     /// <returns></returns>
     public static DateTime GetNextWeekdayDate(DateTime now, DayOfWeek dayOfWeek)
     {
-        var daysUntilDayOfWeek = ((int)dayOfWeek - (int)now.DayOfWeek + 7) % 7;
+        var daysUntilDayOfWeek = ((int)dayOfWeek - 1 - (int)now.DayOfWeek + 7) % 7 + 1;
         return now.AddDays(daysUntilDayOfWeek);
     }
 }

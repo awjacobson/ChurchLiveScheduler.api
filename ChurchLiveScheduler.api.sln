@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34601.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChurchLiveScheduler.api", "ChurchLiveScheduler.api\ChurchLiveScheduler.api.csproj", "{6A310D73-109F-4188-9EA6-69C1DF219DD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChurchLiveScheduler.api", "ChurchLiveScheduler.api\ChurchLiveScheduler.api.csproj", "{6A310D73-109F-4188-9EA6-69C1DF219DD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChurchLiveScheduler.tests", "ChurchLiveScheduler.tests\ChurchLiveScheduler.tests.csproj", "{C2040686-4B7E-46D8-A356-93CAFAA11689}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6A310D73-109F-4188-9EA6-69C1DF219DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A310D73-109F-4188-9EA6-69C1DF219DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A310D73-109F-4188-9EA6-69C1DF219DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2040686-4B7E-46D8-A356-93CAFAA11689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2040686-4B7E-46D8-A356-93CAFAA11689}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2040686-4B7E-46D8-A356-93CAFAA11689}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2040686-4B7E-46D8-A356-93CAFAA11689}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
