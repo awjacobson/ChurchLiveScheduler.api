@@ -1,5 +1,7 @@
 # ChurchLiveScheduler.api
 
+![CI/CD Workflow](https://github.com/awjacobson/ChurchLiveScheduler.api/actions/workflows/ChurchLiveSchedulerApi.yml/badge.svg)
+
 ChurchLiveScheduler.api is a collection of API endpoints to retrieve and maintain a church's live stream schedule.  This project is implemented as Azure HTTP Trigger functions.
 
 ## Database
