@@ -18,22 +18,28 @@ public class ChurchLiveSchedulerFunction
         _schedulerService = schedulerService;
     }
 
+    [FunctionName("GetCurrentTime")]
+    public static IActionResult GetCurrentTime(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+        ILogger log)
+    {
+        log.LogInformation("GetNext");
+
+        var centralTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+        var date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTimeZone);
+
+        return new OkObjectResult(date);
+    }
+
     [FunctionName(nameof(GetNext))]
     public async Task<IActionResult> GetNext(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
         ILogger log)
     {
-        //log.LogInformation("C# HTTP trigger function processed a request.");
+        log.LogInformation("GetNext");
 
         string queryDate = req.Query["date"];
 
-        //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        //dynamic data = JsonConvert.DeserializeObject(requestBody);
-        //name = name ?? data?.name;
-
-        //string responseMessage = string.IsNullOrEmpty(name)
-        //    ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-        //    : $"Hello, {name}. This HTTP triggered function executed successfully.";
         DateTime date;
         if (queryDate != null)
         {
