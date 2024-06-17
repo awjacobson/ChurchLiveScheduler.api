@@ -13,7 +13,7 @@ namespace ChurchLiveScheduler.api;
 /// <summary>
 /// https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection
 /// </summary>
-public class Startup : FunctionsStartup
+internal sealed class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {

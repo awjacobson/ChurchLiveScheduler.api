@@ -1,12 +1,51 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ChurchLiveScheduler.api.Models;
 
-public class Series
+[DebuggerDisplay("Name={Name}")]
+public record Series
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public DayOfWeek Day { get; set; }
-    public int Hours { get; set; }
-    public int Minutes { get; set; }
+    /// <summary>
+    /// Gets the id
+    /// </summary>
+    public int Id { get; init; }
+
+    /// <summary>
+    /// Gets the name
+    /// </summary>
+    /// <example>
+    /// Sunday Morning Worship
+    /// </example>
+    public string Name { get; init; }
+
+    /// <summary>
+    /// Gets the day of week
+    /// </summary>
+    /// <example>
+    /// DayOfWeek.Sunday
+    /// </example>
+    public DayOfWeek Day { get; init; }
+
+    /// <summary>
+    /// Gets the start time hour
+    /// </summary>
+    /// <example>
+    /// If the series was scheduled for 10:30 each week then Hours would be 10
+    /// </example>
+    public int Hours { get; init; }
+
+    /// <summary>
+    /// Gets the start time minute
+    /// </summary>
+    /// <example>
+    /// If the series was scheduled for 10:30 each week then Minutes would be 30
+    /// </example>
+    public int Minutes { get; init; }
+
+    /// <summary>
+    /// Gets the cancellations for this series
+    /// </summary>
+    public IEnumerable<Cancellation> Cancellations { get; init; }
 }

@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ChurchLiveScheduler.tests;
 
 [TestClass]
-public class UnitTest1
+public sealed class UnitTest1
 {
     //private readonly ISeriesRepository _seriesRepository;
     //private readonly ISchedulerDbContext _schedulerDbContext;

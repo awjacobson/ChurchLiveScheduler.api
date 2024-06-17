@@ -1,23 +1,44 @@
 ﻿using ChurchLiveScheduler.api.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ChurchLiveScheduler.api.Repositories;
 
-public interface ISeriesRepository
+internal interface ISeriesRepository
 {
+    /// <summary>
+    /// Get all series
+    /// </summary>
+    /// <returns></returns>
+    Task<List<Series>> GetAll();
+
+    /// <summary>
+    /// Get the next in series after the given date
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
     Task<ScheduledEvent> GetNextAsync(DateTime date);
 }
 
-public sealed class SeriesRepository : ISeriesRepository
+internal sealed class SeriesRepository : ISeriesRepository
 {
     private readonly SchedulerDbContext _dbContext;
 
     public SeriesRepository(SchedulerDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<List<Series>> GetAll()
+    {
+        return await _dbContext.Series
+            .Include(x => x.Cancellations)
+            .OrderBy(x => x.Day)
+            .ThenBy(x => x.Hours)
+            .ToListAsync();
     }
 
     public async Task<ScheduledEvent> GetNextAsync(DateTime date)

@@ -53,4 +53,16 @@ public class ChurchLiveSchedulerFunction
         var scheduledEvent = await _schedulerService.GetScheduledEventAsync(date);
         return new OkObjectResult(scheduledEvent);
     }
+
+    [FunctionName(nameof(GetAll))]
+    public async Task<IActionResult> GetAll(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+        ILogger log)
+    {
+        log.LogInformation("GetAll");
+
+        var all = await _schedulerService.GetAllAsync();
+        return new OkObjectResult(all);
+
+    }
 }
