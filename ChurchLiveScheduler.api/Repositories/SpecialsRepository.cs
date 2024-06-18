@@ -13,7 +13,7 @@ internal interface ISpecialsRepository
     /// Get all specials
     /// </summary>
     /// <returns></returns>
-    Task<List<Special>> GetAll();
+    Task<List<Special>> GetAllAsync();
 
     /// <summary>
     /// Get the next special after the given date
@@ -32,7 +32,7 @@ internal sealed class SpecialsRepository : ISpecialsRepository
         _dbContext = dbContext;
     }
 
-    public Task<List<Special>> GetAll()
+    public Task<List<Special>> GetAllAsync()
     {
         return _dbContext.Specials
             .OrderByDescending(x => x.Datetime)

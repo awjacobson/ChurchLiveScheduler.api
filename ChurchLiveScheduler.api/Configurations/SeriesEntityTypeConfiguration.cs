@@ -8,7 +8,7 @@ internal sealed class SeriesEntityTypeConfiguration : IEntityTypeConfiguration<S
 {
     public void Configure(EntityTypeBuilder<Series> builder)
     {
-        builder.HasKey(s => new { s.Id });
+        builder.HasKey(s => s.Id);
 
         builder.HasMany(s => s.Cancellations);
     }

@@ -13,7 +13,9 @@ internal interface ISeriesRepository
     /// Get all series
     /// </summary>
     /// <returns></returns>
-    Task<List<Series>> GetAll();
+    Task<List<Series>> GetAllAsync();
+
+    Task<Series> GetDetailAsync(int seriesId);
 
     /// <summary>
     /// Get the next in series after the given date
@@ -32,13 +34,21 @@ internal sealed class SeriesRepository : ISeriesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<Series>> GetAll()
+    public Task<List<Series>> GetAllAsync()
     {
-        return await _dbContext.Series
+        return _dbContext.Series
             .Include(x => x.Cancellations)
             .OrderBy(x => x.Day)
             .ThenBy(x => x.Hours)
             .ToListAsync();
+    }
+
+    public Task<Series> GetDetailAsync(int seriesId)
+    {
+        return _dbContext.Series
+            .Where(x => x.Id == seriesId)
+            .Include(x => x.Cancellations)
+            .SingleAsync();
     }
 
     public async Task<ScheduledEvent> GetNextAsync(DateTime date)
@@ -54,13 +64,31 @@ internal sealed class SeriesRepository : ISeriesRepository
         return scheduledEvents.OrderBy(x => x.Start).FirstOrDefault();
     }
 
+    public static DateTime GetNextScheduledEvent(DateTime now, Series series) =>
+        GetNextDate(now, series.Day, series.Hours, series.Minutes, series.Cancellations.Select(x => x.Date));
+
     /// <summary>
-    /// Get the date and time of the next occurance of the given series.
+    /// Get the next date that is not cancelled
     /// </summary>
     /// <param name="now"></param>
-    /// <param name="series"></param>
+    /// <param name="dayOfWeek"></param>
+    /// <param name="hours"></param>
+    /// <param name="minutes"></param>
+    /// <param name="cancellations"></param>
     /// <returns></returns>
-    public static DateTime GetNextScheduledEvent(DateTime now, Series series) => GetNextDate(now, series.Day, series.Hours, series.Minutes);
+    public static DateTime GetNextDate(DateTime now, DayOfWeek dayOfWeek, int hours, int minutes, IEnumerable<DateOnly> cancellations)
+    {
+        do
+        {
+            var next = GetNextDate(now, dayOfWeek, hours, minutes);
+            if (!cancellations.Contains(DateOnly.FromDateTime(next)))
+            {
+                return next;
+            }
+            now = next.AddMinutes(1);
+        }
+        while (true);
+    }
 
     /// <summary>
     /// Get the date and time of the next day of the week and time (could be current date)
@@ -71,7 +99,7 @@ internal sealed class SeriesRepository : ISeriesRepository
     /// <param name="minutes"></param>
     public static DateTime GetNextDate(DateTime now, DayOfWeek dayOfWeek, int hours, int minutes)
     {
-        if (now.DayOfWeek == dayOfWeek && (hours >= now.Hour || (hours == now.Hour && minutes >= now.Minute)))
+        if (now.DayOfWeek == dayOfWeek && (hours > now.Hour || (hours == now.Hour && minutes >= now.Minute)))
         {
             return new DateTime(now.Year, now.Month, now.Day, hours, minutes, 0);
         }

@@ -8,6 +8,6 @@ internal sealed class CancellationEntityTypeConfiguration : IEntityTypeConfigura
 {
     public void Configure(EntityTypeBuilder<Cancellation> builder)
     {
-        builder.HasKey(c => new { c.SeriesId, c.Date });
+        builder.HasKey(c => c.Id);
     }
 }

@@ -1,21 +1,28 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace ChurchLiveScheduler.api.Models;
 
-public record Cancellation
+[DebuggerDisplay("Id={Id}, Reason={Reason}")]
+public class Cancellation
 {
     /// <summary>
-    /// Gets the Id of the series with a cancellation
+    /// Gets or sets the id
     /// </summary>
-    public int SeriesId { get; init; }
+    public int Id { get; set; }
 
     /// <summary>
-    /// Gets the date of the cancellation
+    /// Gets or sets the Id of the series with a cancellation
     /// </summary>
-    public DateOnly Date { get; init; }
+    public int SeriesId { get; set; }
 
     /// <summary>
-    /// Gets the reason of the cancellation
+    /// Gets or sets the date of the cancellation
     /// </summary>
-    public string? Reason { get; init; }
+    public DateOnly Date { get; set; }
+
+    /// <summary>
+    /// Gets or sets the reason of the cancellation
+    /// </summary>
+    public string? Reason { get; set; }
 }

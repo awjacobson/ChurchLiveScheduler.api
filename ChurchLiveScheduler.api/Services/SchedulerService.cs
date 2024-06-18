@@ -10,6 +10,13 @@ public interface ISchedulerService
 {
     Task<ScheduledEvent> GetScheduledEventAsync(DateTime date);
     Task<GetAllResponse> GetAllAsync();
+    Task<List<Special>> GetSpecialsAsync();
+    Task<List<Series>> GetSeriesAsync();
+    Task<Series> GetSeriesDetailAsync(int seriesId);
+    Task<List<Cancellation>> GetCancellationsAsync(int seriesId);
+    Task<Cancellation> CreateCancellationAsync(int seriesId, DateOnly date, string? reason);
+    Task<Cancellation> UpdateCancellationAsync(int seriesId, int cancellationId, DateOnly date, string? reason);
+    Task<Cancellation> DeleteCancellationAsync(int seriesId, int cancellationId);
 }
 
 /// <summary>
@@ -19,21 +26,21 @@ internal sealed class SchedulerService : ISchedulerService
 {
     private readonly ISeriesRepository _seriesRepository;
     private readonly ISpecialsRepository _specialsRepository;
+    private readonly ICancellationsRepository _cancellationsRepository;
 
     public SchedulerService(ISeriesRepository seriesRepository,
-        ISpecialsRepository specialsRepository)
+        ISpecialsRepository specialsRepository,
+        ICancellationsRepository cancellationsRepository)
     {
         _seriesRepository = seriesRepository;
         _specialsRepository = specialsRepository;
+        _cancellationsRepository = cancellationsRepository;
     }
 
     public async Task<ScheduledEvent> GetScheduledEventAsync(DateTime date)
     {
-        var nextInSeriesTask = _seriesRepository.GetNextAsync(date);
-        var nextInSpecialsTask = _specialsRepository.GetNextAsync(date);
-
-        var nextInSeries = await nextInSeriesTask;
-        var nextInSpecials = await nextInSpecialsTask;
+        var nextInSeries = await _seriesRepository.GetNextAsync(date);
+        var nextInSpecials = await _specialsRepository.GetNextAsync(date);
 
         // Specials have precidence over series.
         // If a special is scheduled for the same start time as a series occurrence then pick the special.
@@ -52,12 +59,26 @@ internal sealed class SchedulerService : ISchedulerService
     {
         return new GetAllResponse
         {
-            Series = await GetAllSeriesAsync(),
-            Specials = await GetAllSpecialsAsync()
+            Series = await GetSeriesAsync(),
+            Specials = await GetSpecialsAsync()
         };
     }
 
-    public Task<List<Series>> GetAllSeriesAsync() => _seriesRepository.GetAll();
+    public Task<List<Special>> GetSpecialsAsync() => _specialsRepository.GetAllAsync();
 
-    public Task<List<Special>> GetAllSpecialsAsync() => _specialsRepository.GetAll();
+    public Task<List<Series>> GetSeriesAsync() => _seriesRepository.GetAllAsync();
+
+    public Task<Series> GetSeriesDetailAsync(int seriesId) => _seriesRepository.GetDetailAsync(seriesId);
+
+    public Task<List<Cancellation>> GetCancellationsAsync(int seriesId) =>
+        _cancellationsRepository.GetAllAsync(seriesId);
+
+    public Task<Cancellation> CreateCancellationAsync(int seriesId, DateOnly date, string? reason) =>
+        _cancellationsRepository.CreateAsync(seriesId, date, reason);
+
+    public Task<Cancellation> UpdateCancellationAsync(int seriesId, int cancellationId, DateOnly date, string? reason) =>
+        _cancellationsRepository.UpdateAsync(seriesId, cancellationId, date, reason);
+
+    public Task<Cancellation> DeleteCancellationAsync(int seriesId, int cancellationId) =>
+        _cancellationsRepository?.DeleteAsync(seriesId, cancellationId);
 }

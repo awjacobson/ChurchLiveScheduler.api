@@ -1,25 +1,28 @@
-﻿namespace ChurchLiveScheduler.api.Models;
+﻿using System.Diagnostics;
 
-public record Special
+namespace ChurchLiveScheduler.api.Models;
+
+[DebuggerDisplay("Name={Name}")]
+public class Special
 {
     /// <summary>
-    /// Gets the Id
+    /// Gets or sets the id
     /// </summary>
-    public int Id { get; init; }
+    public int Id { get; set; }
 
     /// <summary>
-    /// Gets the name
+    /// Gets or sets the name
     /// </summary>
     /// <example>
     /// Easter Sunrise Service
     /// </example>
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     /// <summary>
-    /// Gets the date and time of the special
+    /// Gets or sets the date and time of the special
     /// </summary>
     /// <example>
     /// Easter Sunrise Service would be 2024-03-31T07:00:00
     /// </example>
-    public string Datetime { get; init; }
+    public string Datetime { get; set; }
 }

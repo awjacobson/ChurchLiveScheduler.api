@@ -27,5 +27,6 @@ internal sealed class Startup : FunctionsStartup
         builder.Services.AddScoped<ISchedulerService, SchedulerService>();
         builder.Services.AddScoped<ISpecialsRepository, SpecialsRepository>();
         builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
+        builder.Services.AddScoped<ICancellationsRepository, CancellationsRepository>();
     }
 }

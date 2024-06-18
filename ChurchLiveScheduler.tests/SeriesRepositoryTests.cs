@@ -1,23 +1,29 @@
-using ChurchLiveScheduler.api.Models;
 using ChurchLiveScheduler.api.Repositories;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ChurchLiveScheduler.tests;
 
 [TestClass]
-public sealed class UnitTest1
+public sealed class SeriesRepositoryTests
 {
-    //private readonly ISeriesRepository _seriesRepository;
-    //private readonly ISchedulerDbContext _schedulerDbContext;
-
-    public UnitTest1()
+    [TestMethod]
+    public void GetNextDateOverloadOneShould_CheckCancellations()
     {
-        //_seriesRepository = new SeriesRepository(_schedulerDbContext);
+        // ARRANGE
+        var now = DateTime.Parse("2024-03-24T10:33:00.000");
+        var dayOfWeek = DayOfWeek.Sunday;
+        var hours = 18;
+        var minutes = 30;
+        var cancellations = new List<DateOnly>() { DateOnly.Parse("2024-03-24") };
+
+        // ACT
+        var actual = SeriesRepository.GetNextDate(now, dayOfWeek, hours, minutes, cancellations);
+
+        // ASSERT
+        Assert.AreEqual(DateTime.Parse("2024-03-31T18:30:00.000"), actual);
     }
 
     [TestMethod]
-    public void GetNextDateShould()
+    public void GetNextDateOverloadTwoShould()
     {
         // ARRANGE
         var now = DateTime.Parse("2024-03-24T10:33:00.000");
