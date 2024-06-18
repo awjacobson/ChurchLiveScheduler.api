@@ -1,32 +1,29 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using ChurchLiveScheduler.api.Services;
-using System.IO;
-using System.Text.Json;
 using ChurchLiveScheduler.api.Models;
+using ChurchLiveScheduler.api.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace ChurchLiveScheduler.api;
 
 public class ChurchLiveSchedulerFunction
 {
+    private readonly ILogger<ChurchLiveSchedulerFunction> _logger;
     private readonly ISchedulerService _schedulerService;
 
-    public ChurchLiveSchedulerFunction(ISchedulerService schedulerService)
+    public ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILogger<ChurchLiveSchedulerFunction> logger)
     {
+        _logger = logger;
         _schedulerService = schedulerService;
     }
 
-    [FunctionName("GetCurrentTime")]
-    public static IActionResult GetCurrentTime(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-        ILogger log)
+    [Function("GetCurrentTime")]
+    public IActionResult GetCurrentTime(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
     {
-        log.LogInformation("GetNext");
+        _logger.LogInformation("GetNext");
 
         var centralTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
         var date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTimeZone);
@@ -34,12 +31,11 @@ public class ChurchLiveSchedulerFunction
         return new OkObjectResult(date);
     }
 
-    [FunctionName(nameof(GetNext))]
+    [Function(nameof(GetNext))]
     public async Task<IActionResult> GetNext(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-        ILogger log)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
     {
-        log.LogInformation("GetNext");
+        _logger.LogInformation("GetNext");
 
         string queryDate = req.Query["date"];
 
@@ -57,55 +53,50 @@ public class ChurchLiveSchedulerFunction
         return new OkObjectResult(scheduledEvent);
     }
 
-    [FunctionName(nameof(GetAll))]
+    [Function(nameof(GetAll))]
     public async Task<IActionResult> GetAll(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-        ILogger log)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
     {
-        log.LogInformation("GetAll");
+        _logger.LogInformation("GetAll");
         var all = await _schedulerService.GetAllAsync();
         return new OkObjectResult(all);
     }
 
-    [FunctionName(nameof(GetSeriesList))]
+    [Function(nameof(GetSeriesList))]
     public async Task<IActionResult> GetSeriesList(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series")] HttpRequest req,
-        ILogger log)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series")] HttpRequest req)
     {
-        log.LogInformation("GetSeriesList");
+        _logger.LogInformation("GetSeriesList");
         var seriesList = await _schedulerService.GetSeriesAsync();
         return new OkObjectResult(seriesList);
     }
 
-    [FunctionName(nameof(GetSeriesDetail))]
+    [Function(nameof(GetSeriesDetail))]
     public async Task<IActionResult> GetSeriesDetail(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}")] HttpRequest req,
-    int seriesId,
-    ILogger log)
+    int seriesId)
     {
-        log.LogInformation("GetSeriesDetail (seriesId={1})", seriesId);
+        _logger.LogInformation("GetSeriesDetail (seriesId={1})", seriesId);
         var seriesDetail = await _schedulerService.GetSeriesDetailAsync(seriesId);
         return new OkObjectResult(seriesDetail);
     }
 
-    [FunctionName(nameof(GetCancellationList))]
+    [Function(nameof(GetCancellationList))]
     public async Task<IActionResult> GetCancellationList(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
-        int seriesId,
-        ILogger log)
+        int seriesId)
     {
-        log.LogInformation("GetCancellationList (seriesId={1})", seriesId);
+        _logger.LogInformation("GetCancellationList (seriesId={1})", seriesId);
         var cancellationList = await _schedulerService.GetCancellationsAsync(seriesId);
         return new OkObjectResult(cancellationList);
     }
 
-    [FunctionName(nameof(CreateCancellation))]
+    [Function(nameof(CreateCancellation))]
     public async Task<IActionResult> CreateCancellation(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
-        int seriesId,
-        ILogger log)
+        int seriesId)
     {
-        log.LogInformation("CreateCancellation (seriesId={1})", seriesId);
+        _logger.LogInformation("CreateCancellation (seriesId={1})", seriesId);
         var requestBody = new StreamReader(req.Body).ReadToEnd();
         var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
         var date = DateOnly.Parse(cancellationRequest.Date);
@@ -114,14 +105,13 @@ public class ChurchLiveSchedulerFunction
         return new OkObjectResult(created);
     }
 
-    [FunctionName(nameof(UpdateCancellation))]
+    [Function(nameof(UpdateCancellation))]
     public async Task<IActionResult> UpdateCancellation(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
         int seriesId,
-        int cancellationId,
-        ILogger log)
+        int cancellationId)
     {
-        log.LogInformation("UpdateCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
+        _logger.LogInformation("UpdateCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
         var requestBody = new StreamReader(req.Body).ReadToEnd();
         var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
         var date = DateOnly.Parse(cancellationRequest.Date);
@@ -130,14 +120,13 @@ public class ChurchLiveSchedulerFunction
         return new OkObjectResult(updated);
     }
 
-    [FunctionName(nameof(DeleteCancellation))]
+    [Function(nameof(DeleteCancellation))]
     public async Task<IActionResult> DeleteCancellation(
         [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
         int seriesId,
-        int cancellationId,
-        ILogger log)
+        int cancellationId)
     {
-        log.LogInformation("DeleteCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
+        _logger.LogInformation("DeleteCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
         var deleted = await _schedulerService.DeleteCancellationAsync(seriesId, cancellationId);
         return new OkObjectResult(deleted);
     }

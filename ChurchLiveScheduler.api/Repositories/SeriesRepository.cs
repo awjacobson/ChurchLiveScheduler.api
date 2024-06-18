@@ -65,7 +65,7 @@ internal sealed class SeriesRepository : ISeriesRepository
     }
 
     public static DateTime GetNextScheduledEvent(DateTime now, Series series) =>
-        GetNextDate(now, series.Day, series.Hours, series.Minutes, series.Cancellations.Select(x => x.Date));
+        GetNextDate(now, series.Day, series.Hours, series.Minutes, series.Cancellations?.Select(x => x.Date));
 
     /// <summary>
     /// Get the next date that is not cancelled
@@ -76,12 +76,12 @@ internal sealed class SeriesRepository : ISeriesRepository
     /// <param name="minutes"></param>
     /// <param name="cancellations"></param>
     /// <returns></returns>
-    public static DateTime GetNextDate(DateTime now, DayOfWeek dayOfWeek, int hours, int minutes, IEnumerable<DateOnly> cancellations)
+    public static DateTime GetNextDate(DateTime now, DayOfWeek dayOfWeek, int hours, int minutes, IEnumerable<DateOnly>? cancellations)
     {
         do
         {
             var next = GetNextDate(now, dayOfWeek, hours, minutes);
-            if (!cancellations.Contains(DateOnly.FromDateTime(next)))
+            if (cancellations == null || !cancellations.Contains(DateOnly.FromDateTime(next)))
             {
                 return next;
             }
