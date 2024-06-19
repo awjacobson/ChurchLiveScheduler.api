@@ -9,7 +9,7 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: ChurchLiveScheduler.api
-  DOTNET_CORE_VERSION_INPROC: 6.0.x
+  DOTNET_CORE_VERSION_INPROC: 8.0.x
 jobs:
   build:
     runs-on: windows-latest
@@ -47,5 +47,5 @@ jobs:
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        publish-profile: ${{ secrets.ChurchLiveSchedulerApi_040A }}
+        publish-profile: ${{ secrets.ChurchLiveSchedulerApi_9CD3 }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
