@@ -6,13 +6,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+const string DevEnvironmentValue = "Development";
+const string DBPath = "schedule.db";
+const string Azure_DBPath = "D:/home/schedule.db";
+
+static void CopyDb()
+{
+    File.Copy(DBPath, Azure_DBPath);
+    File.SetAttributes(Azure_DBPath, FileAttributes.Normal);
+}
+
+bool isDevelopmentEnvironment = Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == DevEnvironmentValue;
+
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services => {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 
-        var connectionString = Environment.GetEnvironmentVariable("DefaultConnection", EnvironmentVariableTarget.Process);
+        if (!isDevelopmentEnvironment && !File.Exists(Azure_DBPath))
+        {
+            CopyDb();
+        }
+
+        var connectionString = $"Data Source={(isDevelopmentEnvironment ? DBPath : Azure_DBPath)};";
 
         services.AddDbContext<SchedulerDbContext>(options =>
         {
