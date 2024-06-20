@@ -76,7 +76,7 @@ public class ChurchLiveSchedulerFunction
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}")] HttpRequest req,
     int seriesId)
     {
-        _logger.LogInformation("GetSeriesDetail (seriesId={1})", seriesId);
+        _logger.LogInformation("GetSeriesDetail (seriesId={SeriesId})", seriesId);
         var seriesDetail = await _schedulerService.GetSeriesDetailAsync(seriesId);
         return new OkObjectResult(seriesDetail);
     }
@@ -86,7 +86,7 @@ public class ChurchLiveSchedulerFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
         int seriesId)
     {
-        _logger.LogInformation("GetCancellationList (seriesId={1})", seriesId);
+        _logger.LogInformation("GetCancellationList (seriesId={SeriesId})", seriesId);
         var cancellationList = await _schedulerService.GetCancellationsAsync(seriesId);
         return new OkObjectResult(cancellationList);
     }
@@ -96,8 +96,8 @@ public class ChurchLiveSchedulerFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
         int seriesId)
     {
-        _logger.LogInformation("CreateCancellation (seriesId={1})", seriesId);
-        var requestBody = new StreamReader(req.Body).ReadToEnd();
+        _logger.LogInformation("CreateCancellation (seriesId={SeriesId})", seriesId);
+        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
         var date = DateOnly.Parse(cancellationRequest.Date);
         var reason = cancellationRequest.Reason;
@@ -111,7 +111,7 @@ public class ChurchLiveSchedulerFunction
         int seriesId,
         int cancellationId)
     {
-        _logger.LogInformation("UpdateCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
+        _logger.LogInformation("UpdateCancellation (seriesId={SeriesId}, cancellationId={CancellationId})", seriesId, cancellationId);
         var requestBody = new StreamReader(req.Body).ReadToEnd();
         var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
         var date = DateOnly.Parse(cancellationRequest.Date);
@@ -126,7 +126,7 @@ public class ChurchLiveSchedulerFunction
         int seriesId,
         int cancellationId)
     {
-        _logger.LogInformation("DeleteCancellation (seriesId={1}, cancellationId={2})", seriesId, cancellationId);
+        _logger.LogInformation("DeleteCancellation (seriesId={SeriesId}, cancellationId={CancellationId})", seriesId, cancellationId);
         var deleted = await _schedulerService.DeleteCancellationAsync(seriesId, cancellationId);
         return new OkObjectResult(deleted);
     }

@@ -75,3 +75,4 @@ function initCountdown(title, date) {
 
 * [Migrate .NET apps from the in-process model to the isolated worker model](https://learn.microsoft.com/en-us/azure/azure-functions/migrate-dotnet-to-isolated-model?tabs=net8)
 * [Use dependency injection in .NET Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection)
+* [Azure Functions SQLite 'database is locked' error? - Here's the fix!](https://youtu.be/xSAyEDFLFTw?si=z3Ypt-cPfBA-Lsqr)

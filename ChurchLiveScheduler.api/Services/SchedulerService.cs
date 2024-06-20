@@ -1,8 +1,5 @@
 ﻿using ChurchLiveScheduler.api.Models;
 using ChurchLiveScheduler.api.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ChurchLiveScheduler.api.Services;
 
@@ -80,5 +77,5 @@ internal sealed class SchedulerService : ISchedulerService
         _cancellationsRepository.UpdateAsync(seriesId, cancellationId, date, reason);
 
     public Task<Cancellation> DeleteCancellationAsync(int seriesId, int cancellationId) =>
-        _cancellationsRepository?.DeleteAsync(seriesId, cancellationId);
+        _cancellationsRepository.DeleteAsync(seriesId, cancellationId);
 }
