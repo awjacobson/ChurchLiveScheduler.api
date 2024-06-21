@@ -37,7 +37,7 @@ public class ChurchLiveSchedulerFunction
     {
         _logger.LogInformation("GetNext");
 
-        string queryDate = req.Query["date"];
+        string? queryDate = req.Query["date"];
 
         DateTime date;
         if (queryDate != null)
@@ -64,7 +64,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(GetSeriesList))]
     public async Task<IActionResult> GetSeriesList(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series")] HttpRequest req)
     {
         _logger.LogInformation("GetSeriesList");
         var seriesList = await _schedulerService.GetSeriesAsync();
@@ -73,7 +73,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(GetSeriesDetail))]
     public async Task<IActionResult> GetSeriesDetail(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}")] HttpRequest req,
+    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}")] HttpRequest req,
     int seriesId)
     {
         _logger.LogInformation("GetSeriesDetail (seriesId={SeriesId})", seriesId);
@@ -83,7 +83,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(GetCancellationList))]
     public async Task<IActionResult> GetCancellationList(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
         int seriesId)
     {
         _logger.LogInformation("GetCancellationList (seriesId={SeriesId})", seriesId);
@@ -93,7 +93,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(CreateCancellation))]
     public async Task<IActionResult> CreateCancellation(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
         int seriesId)
     {
         _logger.LogInformation("CreateCancellation (seriesId={SeriesId})", seriesId);
@@ -107,7 +107,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(UpdateCancellation))]
     public async Task<IActionResult> UpdateCancellation(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
         int seriesId,
         int cancellationId)
     {
@@ -122,7 +122,7 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(DeleteCancellation))]
     public async Task<IActionResult> DeleteCancellation(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
         int seriesId,
         int cancellationId)
     {
