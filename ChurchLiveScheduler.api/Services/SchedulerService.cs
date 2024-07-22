@@ -10,6 +10,7 @@ public interface ISchedulerService
     Task<List<Special>> GetSpecialsAsync();
     Task<List<Series>> GetSeriesAsync();
     Task<Series> GetSeriesDetailAsync(int seriesId);
+    Task<Series> UpdateSeries(Series series);
     Task<List<Cancellation>> GetCancellationsAsync(int seriesId);
     Task<Cancellation> CreateCancellationAsync(int seriesId, DateOnly date, string? reason);
     Task<Cancellation> UpdateCancellationAsync(int seriesId, int cancellationId, DateOnly date, string? reason);
@@ -66,6 +67,8 @@ internal sealed class SchedulerService : ISchedulerService
     public Task<List<Series>> GetSeriesAsync() => _seriesRepository.GetAllAsync();
 
     public Task<Series> GetSeriesDetailAsync(int seriesId) => _seriesRepository.GetDetailAsync(seriesId);
+
+    public Task<Series> UpdateSeries(Series series) => _seriesRepository.UpdateAsync(series);
 
     public Task<List<Cancellation>> GetCancellationsAsync(int seriesId) =>
         _cancellationsRepository.GetAllAsync(seriesId);

@@ -19,7 +19,7 @@ public class ChurchLiveSchedulerFunction
         _schedulerService = schedulerService;
     }
 
-    [Function("GetCurrentTime")]
+    [Function(nameof(GetCurrentTime))]
     public IActionResult GetCurrentTime(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
     {
@@ -73,12 +73,25 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(GetSeriesDetail))]
     public async Task<IActionResult> GetSeriesDetail(
-    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}")] HttpRequest req,
-    int seriesId)
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}")] HttpRequest req,
+        int seriesId)
     {
         _logger.LogInformation("GetSeriesDetail (seriesId={SeriesId})", seriesId);
         var seriesDetail = await _schedulerService.GetSeriesDetailAsync(seriesId);
         return new OkObjectResult(seriesDetail);
+    }
+
+    [Function(nameof(UpdateSeries))]
+    public async Task<IActionResult> UpdateSeries(
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "series/{seriesId:int}")] HttpRequest req,
+        int seriesId)
+    {
+        _logger.LogInformation("UpdateSeries (seriesId={SeriesId})", seriesId);
+        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        var series = JsonSerializer.Deserialize<Series>(requestBody);
+        series.Id = seriesId;
+        var updated = await _schedulerService.UpdateSeries(series);
+        return new OkObjectResult(updated);
     }
 
     [Function(nameof(GetCancellationList))]

@@ -1,9 +1,5 @@
 ﻿using ChurchLiveScheduler.api.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ChurchLiveScheduler.api.Repositories;
 
@@ -23,6 +19,8 @@ internal interface ISeriesRepository
     /// <param name="date"></param>
     /// <returns></returns>
     Task<ScheduledEvent> GetNextAsync(DateTime date);
+
+    Task<Series> UpdateAsync(Series series);
 }
 
 internal sealed class SeriesRepository : ISeriesRepository
@@ -118,5 +116,11 @@ internal sealed class SeriesRepository : ISeriesRepository
     {
         var daysUntilDayOfWeek = ((int)dayOfWeek - 1 - (int)now.DayOfWeek + 7) % 7 + 1;
         return now.AddDays(daysUntilDayOfWeek);
+    }
+
+    public Task<Series> UpdateAsync(Series series)
+    {
+        _dbContext.Entry(series).State = EntityState.Modified;
+        return _dbContext.SaveChangesAsync().ContinueWith(_ => series);
     }
 }

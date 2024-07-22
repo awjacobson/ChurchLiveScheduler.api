@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace ChurchLiveScheduler.api.Models;
 
@@ -8,7 +9,8 @@ public class Series
     /// <summary>
     /// Gets or sets the id
     /// </summary>
-    public int Id { get; set; }
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
 
     /// <summary>
     /// Gets or sets the name
@@ -16,7 +18,8 @@ public class Series
     /// <example>
     /// Sunday Morning Worship
     /// </example>
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the day of week
@@ -24,6 +27,7 @@ public class Series
     /// <example>
     /// DayOfWeek.Sunday
     /// </example>
+    [JsonPropertyName("day")]
     public DayOfWeek Day { get; set; }
 
     /// <summary>
@@ -32,6 +36,7 @@ public class Series
     /// <example>
     /// If the series was scheduled for 10:30 each week then Hours would be 10
     /// </example>
+    [JsonPropertyName("hours")]
     public int Hours { get; set; }
 
     /// <summary>
@@ -40,6 +45,7 @@ public class Series
     /// <example>
     /// If the series was scheduled for 10:30 each week then Minutes would be 30
     /// </example>
+    [JsonPropertyName("minutes")]
     public int Minutes { get; set; }
 
     /// <summary>
