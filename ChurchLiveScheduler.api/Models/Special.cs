@@ -16,7 +16,7 @@ public class Special
     /// <example>
     /// Easter Sunrise Service
     /// </example>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the date and time of the special
@@ -24,5 +24,5 @@ public class Special
     /// <example>
     /// Easter Sunrise Service would be 2024-03-31T07:00:00
     /// </example>
-    public string Datetime { get; set; }
+    public string Datetime { get; set; } = null!;
 }

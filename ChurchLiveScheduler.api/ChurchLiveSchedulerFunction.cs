@@ -1,5 +1,5 @@
-using ChurchLiveScheduler.api.Models;
 using ChurchLiveScheduler.api.Services;
+using ChurchLiveScheduler.sdk.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -8,16 +8,10 @@ using System.Text.Json;
 
 namespace ChurchLiveScheduler.api;
 
-public class ChurchLiveSchedulerFunction
+public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILogger<ChurchLiveSchedulerFunction> logger)
 {
-    private readonly ILogger<ChurchLiveSchedulerFunction> _logger;
-    private readonly ISchedulerService _schedulerService;
-
-    public ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILogger<ChurchLiveSchedulerFunction> logger)
-    {
-        _logger = logger;
-        _schedulerService = schedulerService;
-    }
+    private readonly ILogger<ChurchLiveSchedulerFunction> _logger = logger;
+    private readonly ISchedulerService _schedulerService = schedulerService;
 
     [Function(nameof(GetCurrentTime))]
     public IActionResult GetCurrentTime(
@@ -62,6 +56,7 @@ public class ChurchLiveSchedulerFunction
         return new OkObjectResult(all);
     }
 
+    #region Series
     [Function(nameof(GetSeriesList))]
     public async Task<IActionResult> GetSeriesList(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series")] HttpRequest req)
@@ -83,17 +78,18 @@ public class ChurchLiveSchedulerFunction
 
     [Function(nameof(UpdateSeries))]
     public async Task<IActionResult> UpdateSeries(
-        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "series/{seriesId:int}")] HttpRequest req,
-        int seriesId)
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "series/{id:int}")] HttpRequest req,
+        int id)
     {
-        _logger.LogInformation("UpdateSeries (seriesId={SeriesId})", seriesId);
+        _logger.LogInformation("UpdateSeries (seriesId={SeriesId})", id);
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        var series = JsonSerializer.Deserialize<Series>(requestBody);
-        series.Id = seriesId;
-        var updated = await _schedulerService.UpdateSeries(series);
-        return new OkObjectResult(updated);
+        var request = JsonSerializer.Deserialize<UpdateSeriesRequest>(requestBody);
+        var response = await _schedulerService.UpdateSeriesAsync(id, request);
+        return new OkObjectResult(response);
     }
+    #endregion
 
+    #region Cancellations
     [Function(nameof(GetCancellationList))]
     public async Task<IActionResult> GetCancellationList(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
@@ -126,10 +122,8 @@ public class ChurchLiveSchedulerFunction
     {
         _logger.LogInformation("UpdateCancellation (seriesId={SeriesId}, cancellationId={CancellationId})", seriesId, cancellationId);
         var requestBody = new StreamReader(req.Body).ReadToEnd();
-        var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
-        var date = DateOnly.Parse(cancellationRequest.Date);
-        var reason = cancellationRequest.Reason;
-        var updated = await _schedulerService.UpdateCancellationAsync(seriesId, cancellationId, date, reason);
+        var request = JsonSerializer.Deserialize<UpdateCancellationRequest>(requestBody);
+        var updated = await _schedulerService.UpdateCancellationAsync(seriesId, cancellationId, request);
         return new OkObjectResult(updated);
     }
 
@@ -140,7 +134,67 @@ public class ChurchLiveSchedulerFunction
         int cancellationId)
     {
         _logger.LogInformation("DeleteCancellation (seriesId={SeriesId}, cancellationId={CancellationId})", seriesId, cancellationId);
-        var deleted = await _schedulerService.DeleteCancellationAsync(seriesId, cancellationId);
-        return new OkObjectResult(deleted);
+        var response = await _schedulerService.DeleteCancellationAsync(seriesId, cancellationId);
+        return new OkObjectResult(response);
     }
+    #endregion
+
+    #region Specials
+    [Function(nameof(GetSpecials))]
+    public async Task<IActionResult> GetSpecials([HttpTrigger(AuthorizationLevel.Function, "get", Route = "specials")] HttpRequest req)
+    {
+        _logger.LogInformation("GetSpecials");
+        var response = await _schedulerService.GetSpecialsAsync();
+        return new OkObjectResult(response);
+    }
+
+    [Function(nameof(CreateSpecial))]
+    public async Task<IActionResult> CreateSpecial(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "specials")] HttpRequest req)
+    {
+        _logger.LogInformation("CreateSpecial");
+        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        var request = JsonSerializer.Deserialize<CreateSpecialRequest>(requestBody);
+
+        if (request == null)
+        {
+            return new BadRequestObjectResult("request is null");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return new BadRequestObjectResult("Name is null");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Date))
+        {
+            return new BadRequestObjectResult("Date is null");
+        }
+
+        var response = await _schedulerService.CreateSpecial(request);
+        return new OkObjectResult(response);
+    }
+
+    [Function(nameof(UpdateSpecial))]
+    public async Task<IActionResult> UpdateSpecial(
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "specials/{id:int}")] HttpRequest req,
+        int id)
+    {
+        _logger.LogInformation("UpdateSpecial (id={id})", id);
+        var requestBody = new StreamReader(req.Body).ReadToEnd();
+        var request = JsonSerializer.Deserialize<UpdateSpecialRequest>(requestBody);
+        var response = await _schedulerService.UpdateSpecialAsync(id, request);
+        return new OkObjectResult(response);
+    }
+
+    [Function(nameof(DeleteSpecial))]
+    public async Task<IActionResult> DeleteSpecial(
+        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "specials/{id:int}")] HttpRequest req,
+        int id)
+    {
+        _logger.LogInformation("DeleteSpecial (id={id})", id);
+        var response = await _schedulerService.DeleteSpecialAsync(id);
+        return new OkObjectResult(response);
+    }
+    #endregion
 }

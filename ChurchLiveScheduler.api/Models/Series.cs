@@ -51,5 +51,5 @@ public class Series
     /// <summary>
     /// Gets or sets the cancellations for this series
     /// </summary>
-    public IEnumerable<Cancellation> Cancellations { get; set; }
+    public IEnumerable<Cancellation>? Cancellations { get; set; }
 }

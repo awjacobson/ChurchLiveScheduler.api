@@ -1,9 +1,5 @@
 ﻿using ChurchLiveScheduler.api.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ChurchLiveScheduler.api.Repositories;
 
@@ -20,7 +16,15 @@ internal interface ISpecialsRepository
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    Task<ScheduledEvent> GetNextAsync(DateTime date);
+    Task<ScheduledEvent?> GetNextAsync(DateTime date);
+
+    Task<Special> FindAsync(int id);
+
+    Task<Special> CreateAsync(string name, string date);
+
+    Task<Special> UpdateAsync(int id, string name, string date);
+
+    Task<Special> DeleteAsync(int id);
 }
 
 internal sealed class SpecialsRepository : ISpecialsRepository
@@ -39,14 +43,44 @@ internal sealed class SpecialsRepository : ISpecialsRepository
             .ToListAsync();
     }
 
-    public Task<ScheduledEvent> GetNextAsync(DateTime date)
+    public Task<ScheduledEvent?> GetNextAsync(DateTime date)
     {
         var dateText = date.ToString("yyyy-MM-ddTHH:mm:00.000");
 
         return _dbContext.Specials
-            .Where(x => String.Compare(x.Datetime, dateText) > 0)
+            .Where(x => string.Compare(x.Datetime, dateText) > 0)
             .OrderBy(x => x.Datetime)
             .Select(x => new ScheduledEvent { Name = x.Name, Start = DateTime.Parse(x.Datetime) })
             .FirstOrDefaultAsync();
+    }
+
+    public Task<Special> FindAsync(int id) => _dbContext.Specials.SingleAsync(x => x.Id == id);
+
+    public async Task<Special> CreateAsync(string name, string date)
+    {
+        var entity = _dbContext.Specials.Add(new Special
+        {
+            Name = name,
+            Datetime = date
+        });
+        await _dbContext.SaveChangesAsync();
+        return entity.Entity;
+    }
+
+    public async Task<Special> UpdateAsync(int id, string name, string date)
+    {
+        var existing = await FindAsync(id);
+        existing.Name = name;
+        existing.Datetime = date;
+        await _dbContext.SaveChangesAsync();
+        return existing;
+    }
+
+    public async Task<Special> DeleteAsync(int id)
+    {
+        var existing = await FindAsync(id);
+        _dbContext.Specials.Remove(existing);
+        await _dbContext.SaveChangesAsync();
+        return existing;
     }
 }

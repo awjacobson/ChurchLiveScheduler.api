@@ -42,7 +42,6 @@ internal sealed class CancellationsRepository : ICancellationsRepository
         return entity.Entity;
     }
 
-
     public async Task<Cancellation> UpdateAsync(int seriesId, int cancellationId, DateOnly date, string? reason)
     {
         var existing = await FindAsync(seriesId, cancellationId);

@@ -11,7 +11,7 @@ internal interface ISeriesRepository
     /// <returns></returns>
     Task<List<Series>> GetAllAsync();
 
-    Task<Series> GetDetailAsync(int seriesId);
+    Task<Series> GetDetailAsync(int id);
 
     /// <summary>
     /// Get the next in series after the given date
@@ -41,10 +41,10 @@ internal sealed class SeriesRepository : ISeriesRepository
             .ToListAsync();
     }
 
-    public Task<Series> GetDetailAsync(int seriesId)
+    public Task<Series> GetDetailAsync(int id)
     {
         return _dbContext.Series
-            .Where(x => x.Id == seriesId)
+            .Where(x => x.Id == id)
             .Include(x => x.Cancellations)
             .SingleAsync();
     }
