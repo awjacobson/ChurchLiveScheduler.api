@@ -54,6 +54,7 @@ internal sealed class SeriesRepository(SchedulerDbContext dbContext) : ISeriesRe
     public async Task<ScheduledEvent> GetNextAsync(DateTime date)
     {
         var scheduledEvents = await dbContext.Series
+            .Include(s => s.Cancellations)
             .Select(x => new ScheduledEvent
             {
                 Name = x.Name,
