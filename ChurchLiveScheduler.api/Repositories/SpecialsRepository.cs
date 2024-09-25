@@ -1,4 +1,6 @@
-﻿using ChurchLiveScheduler.api.Models;
+﻿using ChurchLiveScheduler.api.Extensions;
+using ChurchLiveScheduler.api.Models;
+using ChurchLiveScheduler.sdk.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChurchLiveScheduler.api.Repositories;
@@ -9,7 +11,7 @@ internal interface ISpecialsRepository
     /// Get all specials
     /// </summary>
     /// <returns></returns>
-    Task<List<Special>> GetAllAsync();
+    Task<List<SpecialDto>> GetAllAsync();
 
     /// <summary>
     /// Get the next special after the given date
@@ -27,19 +29,13 @@ internal interface ISpecialsRepository
     Task<Special> DeleteAsync(int id);
 }
 
-internal sealed class SpecialsRepository : ISpecialsRepository
+internal sealed class SpecialsRepository(SchedulerDbContext dbContext) : ISpecialsRepository
 {
-    private readonly SchedulerDbContext _dbContext;
-
-    public SpecialsRepository(SchedulerDbContext dbContext)
+    public Task<List<SpecialDto>> GetAllAsync()
     {
-        _dbContext = dbContext;
-    }
-
-    public Task<List<Special>> GetAllAsync()
-    {
-        return _dbContext.Specials
+        return dbContext.Specials
             .OrderByDescending(x => x.Datetime)
+            .Select(s => s.ToDto())
             .ToListAsync();
     }
 
@@ -47,23 +43,23 @@ internal sealed class SpecialsRepository : ISpecialsRepository
     {
         var dateText = date.ToString("yyyy-MM-ddTHH:mm:00.000");
 
-        return _dbContext.Specials
+        return dbContext.Specials
             .Where(x => string.Compare(x.Datetime, dateText) > 0)
             .OrderBy(x => x.Datetime)
             .Select(x => new ScheduledEvent { Name = x.Name, Start = DateTime.Parse(x.Datetime) })
             .FirstOrDefaultAsync();
     }
 
-    public Task<Special> FindAsync(int id) => _dbContext.Specials.SingleAsync(x => x.Id == id);
+    public Task<Special> FindAsync(int id) => dbContext.Specials.SingleAsync(x => x.Id == id);
 
     public async Task<Special> CreateAsync(string name, string date)
     {
-        var entity = _dbContext.Specials.Add(new Special
+        var entity = dbContext.Specials.Add(new Special
         {
             Name = name,
             Datetime = date
         });
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         return entity.Entity;
     }
 
@@ -72,15 +68,15 @@ internal sealed class SpecialsRepository : ISpecialsRepository
         var existing = await FindAsync(id);
         existing.Name = name;
         existing.Datetime = date;
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         return existing;
     }
 
     public async Task<Special> DeleteAsync(int id)
     {
         var existing = await FindAsync(id);
-        _dbContext.Specials.Remove(existing);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Specials.Remove(existing);
+        await dbContext.SaveChangesAsync();
         return existing;
     }
 }

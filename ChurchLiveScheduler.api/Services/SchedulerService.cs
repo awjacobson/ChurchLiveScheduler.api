@@ -1,4 +1,5 @@
-﻿using ChurchLiveScheduler.api.Models;
+﻿using ChurchLiveScheduler.api.Extensions;
+using ChurchLiveScheduler.api.Models;
 using ChurchLiveScheduler.api.Repositories;
 using ChurchLiveScheduler.sdk.Models;
 
@@ -9,13 +10,13 @@ public interface ISchedulerService
     Task<ScheduledEvent> GetScheduledEventAsync(DateTime date);
     Task<GetAllResponse> GetAllAsync();
 
-    Task<List<Special>> GetSpecialsAsync();
+    Task<List<SpecialDto>> GetSpecialsAsync();
     Task<CreateSpecialResponse> CreateSpecial(CreateSpecialRequest request);
     Task<UpdateSpecialResponse> UpdateSpecialAsync(int id, UpdateSpecialRequest request);
     Task<DeleteSpecialResponse> DeleteSpecialAsync(int id);
 
-    Task<List<Series>> GetSeriesAsync();
-    Task<Series> GetSeriesDetailAsync(int id);
+    Task<List<SeriesDto>> GetSeriesAsync();
+    Task<SeriesDto> GetSeriesDetailAsync(int id);
     Task<UpdateSeriesResponse> UpdateSeriesAsync(int id, UpdateSeriesRequest request);
 
     Task<List<Cancellation>> GetCancellationsAsync(int seriesId);
@@ -62,16 +63,14 @@ internal sealed class SchedulerService : ISchedulerService
 
     public async Task<GetAllResponse> GetAllAsync()
     {
-        var series = await GetSeriesAsync();
-        var specials = await GetSpecialsAsync();
         return new GetAllResponse
         {
-            Series = series.Select(x => new SeriesDto { Id = x.Id.Value, Name = x.Name, Day = x.Day, Hours = x.Hours, Minutes = x.Minutes }),
-            Specials = specials.Select(x => new SpecialDto { Id = x.Id, Date = x.Datetime, Name = x.Name })
+            Series = await GetSeriesAsync(),
+            Specials = await GetSpecialsAsync()
         };
     }
 
-    public Task<List<Special>> GetSpecialsAsync() => _specialsRepository.GetAllAsync();
+    public Task<List<SpecialDto>> GetSpecialsAsync() => _specialsRepository.GetAllAsync();
 
     public async Task<CreateSpecialResponse> CreateSpecial(CreateSpecialRequest request)
     {
@@ -109,9 +108,9 @@ internal sealed class SchedulerService : ISchedulerService
         };
     }
 
-    public Task<List<Series>> GetSeriesAsync() => _seriesRepository.GetAllAsync();
+    public Task<List<SeriesDto>> GetSeriesAsync() => _seriesRepository.GetAllAsync();
 
-    public Task<Series> GetSeriesDetailAsync(int id) => _seriesRepository.GetDetailAsync(id);
+    public Task<SeriesDto> GetSeriesDetailAsync(int id) => _seriesRepository.GetDetailAsync(id);
 
     public async Task<UpdateSeriesResponse> UpdateSeriesAsync(int id, UpdateSeriesRequest request)
     {
@@ -124,14 +123,7 @@ internal sealed class SchedulerService : ISchedulerService
             Minutes = request.Minutes
         };
         var updated = await _seriesRepository.UpdateAsync(series);
-        return new UpdateSeriesResponse
-        {
-            Id = updated.Id.Value,
-            Name = updated.Name,
-            Day = updated.Day,
-            Hours = updated.Hours,
-            Minutes = updated.Minutes
-        };
+        return updated.ToUpdateResponse();
     }
 
     public Task<List<Cancellation>> GetCancellationsAsync(int seriesId) =>

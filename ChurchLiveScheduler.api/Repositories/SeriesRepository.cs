@@ -1,4 +1,6 @@
-﻿using ChurchLiveScheduler.api.Models;
+﻿using ChurchLiveScheduler.api.Extensions;
+using ChurchLiveScheduler.api.Models;
+using ChurchLiveScheduler.sdk.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChurchLiveScheduler.api.Repositories;
@@ -9,9 +11,14 @@ internal interface ISeriesRepository
     /// Get all series
     /// </summary>
     /// <returns></returns>
-    Task<List<Series>> GetAllAsync();
+    Task<List<SeriesDto>> GetAllAsync();
 
-    Task<Series> GetDetailAsync(int id);
+    /// <summary>
+    /// Get a series
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<SeriesDto> GetDetailAsync(int id);
 
     /// <summary>
     /// Get the next in series after the given date
@@ -23,35 +30,30 @@ internal interface ISeriesRepository
     Task<Series> UpdateAsync(Series series);
 }
 
-internal sealed class SeriesRepository : ISeriesRepository
+internal sealed class SeriesRepository(SchedulerDbContext dbContext) : ISeriesRepository
 {
-    private readonly SchedulerDbContext _dbContext;
-
-    public SeriesRepository(SchedulerDbContext dbContext)
+    public Task<List<SeriesDto>> GetAllAsync()
     {
-        _dbContext = dbContext;
-    }
-
-    public Task<List<Series>> GetAllAsync()
-    {
-        return _dbContext.Series
-            .Include(x => x.Cancellations)
-            .OrderBy(x => x.Day)
-            .ThenBy(x => x.Hours)
+        return dbContext.Series
+            .Include(s => s.Cancellations)
+            .OrderBy(s => s.Day)
+            .ThenBy(s => s.Hours)
+            .Select(s => s.ToDto())
             .ToListAsync();
     }
 
-    public Task<Series> GetDetailAsync(int id)
+    public Task<SeriesDto> GetDetailAsync(int id)
     {
-        return _dbContext.Series
-            .Where(x => x.Id == id)
-            .Include(x => x.Cancellations)
+        return dbContext.Series
+            .Where(s => s.Id == id)
+            .Include(s => s.Cancellations)
+            .Select(s => s.ToDto())
             .SingleAsync();
     }
 
     public async Task<ScheduledEvent> GetNextAsync(DateTime date)
     {
-        var scheduledEvents = await _dbContext.Series
+        var scheduledEvents = await dbContext.Series
             .Select(x => new ScheduledEvent
             {
                 Name = x.Name,
@@ -120,7 +122,7 @@ internal sealed class SeriesRepository : ISeriesRepository
 
     public Task<Series> UpdateAsync(Series series)
     {
-        _dbContext.Entry(series).State = EntityState.Modified;
-        return _dbContext.SaveChangesAsync().ContinueWith(_ => series);
+        dbContext.Entry(series).State = EntityState.Modified;
+        return dbContext.SaveChangesAsync().ContinueWith(_ => series);
     }
 }
