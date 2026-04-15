@@ -15,7 +15,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
 
     [Function(nameof(GetCurrentTime))]
     public IActionResult GetCurrentTime(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest _)
     {
         _logger.LogInformation("GetNext");
 
@@ -49,7 +49,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
 
     [Function(nameof(GetAll))]
     public async Task<IActionResult> GetAll(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest _)
     {
         _logger.LogInformation("GetAll");
         var all = await _schedulerService.GetAllAsync();
@@ -59,7 +59,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
     #region Series
     [Function(nameof(GetSeriesList))]
     public async Task<IActionResult> GetSeriesList(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series")] HttpRequest _)
     {
         _logger.LogInformation("GetSeriesList");
         var seriesList = await _schedulerService.GetSeriesAsync();
@@ -68,7 +68,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
 
     [Function(nameof(GetSeriesDetail))]
     public async Task<IActionResult> GetSeriesDetail(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}")] HttpRequest _,
         int seriesId)
     {
         _logger.LogInformation("GetSeriesDetail (seriesId={SeriesId})", seriesId);
@@ -84,6 +84,12 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
         _logger.LogInformation("UpdateSeries (seriesId={SeriesId})", id);
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var request = JsonSerializer.Deserialize<UpdateSeriesRequest>(requestBody);
+
+        if (request == null)
+        {
+            return new BadRequestObjectResult("Invalid request body");
+        }
+
         var response = await _schedulerService.UpdateSeriesAsync(id, request);
         return new OkObjectResult(response);
     }
@@ -92,7 +98,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
     #region Cancellations
     [Function(nameof(GetCancellationList))]
     public async Task<IActionResult> GetCancellationList(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "series/{seriesId:int}/cancellations")] HttpRequest _,
         int seriesId)
     {
         _logger.LogInformation("GetCancellationList (seriesId={SeriesId})", seriesId);
@@ -108,6 +114,12 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
         _logger.LogInformation("CreateCancellation (seriesId={SeriesId})", seriesId);
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var cancellationRequest = JsonSerializer.Deserialize<CreateCancellationRequest>(requestBody);
+        
+        if (cancellationRequest == null)
+        {
+            return new BadRequestObjectResult("Invalid request body");
+        }
+
         var date = DateOnly.Parse(cancellationRequest.Date);
         var reason = cancellationRequest.Reason;
         var created = await _schedulerService.CreateCancellationAsync(seriesId, date, reason);
@@ -123,13 +135,19 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
         _logger.LogInformation("UpdateCancellation (seriesId={SeriesId}, cancellationId={CancellationId})", seriesId, cancellationId);
         var requestBody = new StreamReader(req.Body).ReadToEnd();
         var request = JsonSerializer.Deserialize<UpdateCancellationRequest>(requestBody);
+
+        if (request == null)
+        {
+            return new BadRequestObjectResult("Invalid request body");
+        }
+
         var updated = await _schedulerService.UpdateCancellationAsync(seriesId, cancellationId, request);
         return new OkObjectResult(updated);
     }
 
     [Function(nameof(DeleteCancellation))]
     public async Task<IActionResult> DeleteCancellation(
-        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "series/{seriesId:int}/cancellations/{cancellationId:int}")] HttpRequest _,
         int seriesId,
         int cancellationId)
     {
@@ -141,7 +159,7 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
 
     #region Specials
     [Function(nameof(GetSpecials))]
-    public async Task<IActionResult> GetSpecials([HttpTrigger(AuthorizationLevel.Function, "get", Route = "specials")] HttpRequest req)
+    public async Task<IActionResult> GetSpecials([HttpTrigger(AuthorizationLevel.Function, "get", Route = "specials")] HttpRequest _)
     {
         _logger.LogInformation("GetSpecials");
         var response = await _schedulerService.GetSpecialsAsync();
@@ -166,11 +184,6 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
             return new BadRequestObjectResult("Name is null");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Date))
-        {
-            return new BadRequestObjectResult("Date is null");
-        }
-
         var response = await _schedulerService.CreateSpecial(request);
         return new OkObjectResult(response);
     }
@@ -181,15 +194,21 @@ public class ChurchLiveSchedulerFunction(ISchedulerService schedulerService, ILo
         int id)
     {
         _logger.LogInformation("UpdateSpecial (id={id})", id);
-        var requestBody = new StreamReader(req.Body).ReadToEnd();
+        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var request = JsonSerializer.Deserialize<UpdateSpecialRequest>(requestBody);
+
+        if (request == null)
+        {
+            return new BadRequestObjectResult("Invalid request body");
+        }
+
         var response = await _schedulerService.UpdateSpecialAsync(id, request);
         return new OkObjectResult(response);
     }
 
     [Function(nameof(DeleteSpecial))]
     public async Task<IActionResult> DeleteSpecial(
-        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "specials/{id:int}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "specials/{id:int}")] HttpRequest _,
         int id)
     {
         _logger.LogInformation("DeleteSpecial (id={id})", id);

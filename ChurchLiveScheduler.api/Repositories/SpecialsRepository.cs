@@ -22,9 +22,9 @@ internal interface ISpecialsRepository
 
     Task<Special> FindAsync(int id);
 
-    Task<Special> CreateAsync(string name, string date);
+    Task<Special> CreateAsync(string name, DateTime date);
 
-    Task<Special> UpdateAsync(int id, string name, string date);
+    Task<Special> UpdateAsync(int id, string name, DateTime date);
 
     Task<Special> DeleteAsync(int id);
 }
@@ -41,18 +41,16 @@ internal sealed class SpecialsRepository(SchedulerDbContext dbContext) : ISpecia
 
     public Task<ScheduledEvent?> GetNextAsync(DateTime date)
     {
-        var dateText = date.ToString("yyyy-MM-ddTHH:mm:00.000");
-
         return dbContext.Specials
-            .Where(x => string.Compare(x.Datetime, dateText) > 0)
+            .Where(x => x.Datetime > date)
             .OrderBy(x => x.Datetime)
-            .Select(x => new ScheduledEvent { Name = x.Name, Start = DateTime.Parse(x.Datetime) })
+            .Select(x => new ScheduledEvent { Name = x.Name, Start = x.Datetime })
             .FirstOrDefaultAsync();
     }
 
     public Task<Special> FindAsync(int id) => dbContext.Specials.SingleAsync(x => x.Id == id);
 
-    public async Task<Special> CreateAsync(string name, string date)
+    public async Task<Special> CreateAsync(string name, DateTime date)
     {
         var entity = dbContext.Specials.Add(new Special
         {
@@ -63,7 +61,7 @@ internal sealed class SpecialsRepository(SchedulerDbContext dbContext) : ISpecia
         return entity.Entity;
     }
 
-    public async Task<Special> UpdateAsync(int id, string name, string date)
+    public async Task<Special> UpdateAsync(int id, string name, DateTime date)
     {
         var existing = await FindAsync(id);
         existing.Name = name;

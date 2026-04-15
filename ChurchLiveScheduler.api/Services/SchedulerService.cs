@@ -74,26 +74,25 @@ internal sealed class SchedulerService : ISchedulerService
 
     public async Task<CreateSpecialResponse> CreateSpecial(CreateSpecialRequest request)
     {
-        var updated = await _specialsRepository.CreateAsync(request.Name, request.Date);
+        var updated = await _specialsRepository.CreateAsync(request.Name, request.DateTime);
         return new CreateSpecialResponse
         {
             Id = updated.Id,
             Name = updated.Name,
-            Date = updated.Datetime
+            DateTime = updated.Datetime
         };
     }
 
     public async Task<UpdateSpecialResponse> UpdateSpecialAsync(int id, UpdateSpecialRequest request)
     {
-        if (request?.Name is null) throw new ArgumentNullException(nameof(UpdateSpecialRequest.Name));
-        if (request?.Date is null) throw new ArgumentNullException(nameof(UpdateSpecialRequest.Date));
+        ArgumentNullException.ThrowIfNull(request);
 
-        var updated = await _specialsRepository.UpdateAsync(id, request.Name, request.Date);
+        var updated = await _specialsRepository.UpdateAsync(id, request.Name, request.DateTime);
         return new UpdateSpecialResponse
         {
             Id = updated.Id,
             Name = updated.Name,
-            Date = updated.Datetime
+            DateTime = updated.Datetime
         };
     }
     
@@ -103,7 +102,7 @@ internal sealed class SchedulerService : ISchedulerService
         return new DeleteSpecialResponse
         {
             Id = deleted.Id,
-            Date = deleted.Datetime,
+            DateTime = deleted.Datetime,
             Name = deleted.Name
         };
     }

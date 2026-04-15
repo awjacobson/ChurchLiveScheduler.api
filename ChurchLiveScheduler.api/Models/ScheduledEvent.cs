@@ -3,7 +3,7 @@
 namespace ChurchLiveScheduler.api.Models;
 
 [DebuggerDisplay("Name={Name}, Start={Start}")]
-public record ScheduledEvent
+public sealed record ScheduledEvent
 {
     /// <summary>
     /// Gets the name
@@ -11,7 +11,7 @@ public record ScheduledEvent
     /// <remarks>
     /// This could be populated with the name of a series or special
     /// </remarks>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Gets the start date and time
@@ -19,5 +19,5 @@ public record ScheduledEvent
     /// <remarks>
     /// This could be populated with the start date and time of a series or special
     /// </remarks>
-    public DateTime Start {  get; init; }
+    public required DateTime Start {  get; init; }
 }

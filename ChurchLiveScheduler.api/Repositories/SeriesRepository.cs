@@ -25,7 +25,7 @@ internal interface ISeriesRepository
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    Task<ScheduledEvent> GetNextAsync(DateTime date);
+    Task<ScheduledEvent?> GetNextAsync(DateTime date);
 
     Task<Series> UpdateAsync(Series series);
 }
@@ -51,7 +51,7 @@ internal sealed class SeriesRepository(SchedulerDbContext dbContext) : ISeriesRe
             .SingleAsync();
     }
 
-    public async Task<ScheduledEvent> GetNextAsync(DateTime date)
+    public async Task<ScheduledEvent?> GetNextAsync(DateTime date)
     {
         var scheduledEvents = await dbContext.Series
             .Include(s => s.Cancellations)

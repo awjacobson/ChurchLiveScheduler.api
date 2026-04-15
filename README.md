@@ -76,3 +76,13 @@ function initCountdown(title, date) {
 * [Migrate .NET apps from the in-process model to the isolated worker model](https://learn.microsoft.com/en-us/azure/azure-functions/migrate-dotnet-to-isolated-model?tabs=net8)
 * [Use dependency injection in .NET Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection)
 * [Azure Functions SQLite 'database is locked' error? - Here's the fix!](https://youtu.be/xSAyEDFLFTw?si=z3Ypt-cPfBA-Lsqr)
+
+### Version History
+
+#### 1.0.1 - 2026-04-14
+- Updated AWJ.ChurchLiveSchedulerSdk to v1.0.8
+- DTOs now have the required modifier on many of their properties.
+- Fixed async bug in ChurchLiveSchedulerFunction.UpdateSpecial method.
+- Added SpecialEntityTypeConfiguration to account for the DateTime type change from string.
+- Added HTTP file.
+- Added .editorconfig file.

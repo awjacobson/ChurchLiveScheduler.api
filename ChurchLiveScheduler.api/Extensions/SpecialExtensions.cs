@@ -9,7 +9,7 @@ public static class SpecialExtensions
         new()
         {
             Id = entity.Id,
-            Date = entity.Datetime,
+            DateTime = entity.Datetime,
             Name = entity.Name
         };
 }
