@@ -79,6 +79,12 @@ function initCountdown(title, date) {
 
 ### Version History
 
+### 1.0.2 - 2026-04-15
+- Upgraded from .NET 8.0 to 10.0
+- Updated NuGet packages to the latest version.
+- [.editorconfig](https://learn.microsoft.com/en-us/visualstudio/ide/create-portable-custom-editor-options) file changed so services (*Service.cs) do not suggest fixing [IDE0290](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0290). See also [Configuration files for code analysis rules](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files).
+- Added `x-functions-key` to HTTP file for endpoints requiring authorization.
+
 #### 1.0.1 - 2026-04-14
 - Updated AWJ.ChurchLiveSchedulerSdk to v1.0.8
 - DTOs now have the required modifier on many of their properties.

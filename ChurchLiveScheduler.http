@@ -23,14 +23,18 @@ GET {{baseURL}}/api/GetAll
 # ███████║███████╗██║  ██║██║███████╗███████║
 # ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝
 
-###
+### Get the list of all series
 GET {{baseURL}}/api/Series
+x-functions-key: {{key}}
 
-###
+
+### Get the details of a specific series
 GET {{baseURL}}/api/Series/1
+x-functions-key: {{key}}
 
-###
+### Update the specified series
 PUT {{baseURL}}/api/Series/1
+x-functions-key: {{key}}
 Content-Type: application/json
 {
   "Name": "Sunday Morning Worship",
